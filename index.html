@@ -987,6 +987,8 @@ function logSubmission(type, typeName) {
   if (!SHEETS_URL || SHEETS_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
   fetch(SHEETS_URL, {
     method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({
       nickname: _nickname || '（未填）',
       type: type,
@@ -1002,6 +1004,8 @@ function logShare() {
   const r = QUIZ_DATA.types[_currentResultType];
   fetch(SHEETS_URL, {
     method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({
       nickname: _nickname || '（未填）',
       type: _currentResultType,
