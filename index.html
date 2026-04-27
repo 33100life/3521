@@ -980,16 +980,35 @@ let _nickname = '';
 
 // ── Google Sheets 後台 ──
 const SHEETS_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+function _getDevice() {
+  return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? '手機' : '電腦';
+}
 function logSubmission(type, typeName) {
   if (!SHEETS_URL || SHEETS_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
   fetch(SHEETS_URL, {
     method: 'POST',
     body: JSON.stringify({
-      nickname: _nickname,
-      email: '',
+      nickname: _nickname || '（未填）',
       type: type,
       typeName: typeName,
-      theme: _selectedTheme || ''
+      theme: _selectedTheme || '',
+      shared: false,
+      device: _getDevice()
+    })
+  }).catch(() => {});
+}
+function logShare() {
+  if (!SHEETS_URL || SHEETS_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
+  const r = QUIZ_DATA.types[_currentResultType];
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    body: JSON.stringify({
+      nickname: _nickname || '（未填）',
+      type: _currentResultType,
+      typeName: r ? r.name : '',
+      theme: _selectedTheme || '',
+      shared: true,
+      device: _getDevice()
     })
   }).catch(() => {});
 }
@@ -1169,7 +1188,7 @@ function showResult() {
       </div>
     </div>
 
-    <button class="save-btn" id="save-btn" onclick="saveAsImage()">儲存結果圖分享到 IG 🎵</button>
+    <button class="save-btn" id="save-btn" onclick="saveAsImage()">分享 / 存到相簿 🎵</button>
 
     <button class="retry-btn" onclick="startQuiz()">再測一次 ♪</button>
 
@@ -1206,7 +1225,7 @@ function showResult() {
 async function saveAsImage() {
   const btn = document.getElementById('save-btn');
   btn.disabled = true;
-  btn.textContent = '下載中…';
+  btn.textContent = '準備中…';
 
   try {
     const type = _currentResultType;
@@ -1216,18 +1235,31 @@ async function saveAsImage() {
 
     const res = await fetch(`card-${type}.png`);
     const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.download = `${typeName}｜3521地區年會 25-26年度 交響？情人？夢？.png`;
-    link.href = url;
-    link.click();
-    URL.revokeObjectURL(url);
+    const file = new File([blob], `${typeName}｜3521地區年會.png`, { type: 'image/png' });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: `我是${typeName}！`,
+        text: `交響？情人？夢？ × Rotaract 3521 心理測驗\n你是哪種樂手？🎵`
+      });
+      logShare();
+    } else {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `${typeName}｜3521地區年會.png`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
   } catch (e) {
-    alert('下載失敗，請長按圖片儲存。');
+    if (e.name !== 'AbortError') {
+      alert('儲存失敗，請長按圖片儲存。');
+    }
   }
 
   btn.disabled = false;
-  btn.textContent = '儲存結果圖分享到 IG 🎵';
+  btn.textContent = '分享 / 存到相簿 🎵';
 }
 
 </script>
