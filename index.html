@@ -1279,27 +1279,17 @@ async function shareToIG() {
       ? QUIZ_DATA.types[type].name.replace(/[🎼🎹🎻🪈🎷📯🎵🎶🥁🎸]/gu, '').trim()
       : '我的樂手類型';
 
-    const res = await fetch(`card-${type}.png`);
+    const res = await fetch(`ig-card-${type}.png`);
     const blob = await res.blob();
 
-    let method = '';
-    try {
-      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      method = 'clipboard';
-    } catch (e) {
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.download = `${typeName}｜3521地區年會.png`;
-      link.href = url;
-      link.click();
-      URL.revokeObjectURL(url);
-      method = 'download';
-    }
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `${typeName}｜3521地區年會.png`;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
 
-    const msg = method === 'clipboard'
-      ? '圖片已複製！開啟 IG 限動後長按貼上'
-      : '圖片已下載！開啟 IG 限動後從相機膠捲選取';
-    showIGToast(msg);
+    showIGToast('圖片已下載！開啟 IG 限動後從相機膠捲選取');
     logShare();
 
     setTimeout(() => { window.location.href = 'instagram://story-camera'; }, 1200);
