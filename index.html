@@ -507,6 +507,46 @@
     .save-btn:active { transform: translateY(0); }
     .save-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
 
+    .ig-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #833AB4, #C13584, #FD1D1D);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(131,58,180,0.35);
+      margin-top: 12px;
+      letter-spacing: 1px;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .ig-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(131,58,180,0.45); }
+    .ig-btn:active { transform: translateY(0); }
+    .ig-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+    .ig-toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.82);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 24px;
+      font-size: 0.88rem;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s;
+      text-align: center;
+      max-width: 82%;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .ig-toast.show { opacity: 1; }
+
     .axis-scores {
       display: flex;
       gap: 10px;
@@ -1194,6 +1234,8 @@ function showResult() {
 
     <button class="save-btn" id="save-btn" onclick="saveAsImage()">分享 / 存到相簿 🎵</button>
 
+    <button class="ig-btn" id="ig-btn" onclick="shareToIG()">分享到IG限動 📸</button>
+
     <button class="retry-btn" onclick="startQuiz()">再測一次 ♪</button>
 
     <div class="event-footer">
@@ -1224,6 +1266,63 @@ function showResult() {
 
   showScreen('screen-result');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function shareToIG() {
+  const btn = document.getElementById('ig-btn');
+  btn.disabled = true;
+  btn.textContent = '準備中…';
+
+  try {
+    const type = _currentResultType;
+    const typeName = type && QUIZ_DATA.types[type]
+      ? QUIZ_DATA.types[type].name.replace(/[🎼🎹🎻🪈🎷📯🎵🎶🥁🎸]/gu, '').trim()
+      : '我的樂手類型';
+
+    const res = await fetch(`card-${type}.png`);
+    const blob = await res.blob();
+
+    let method = '';
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      method = 'clipboard';
+    } catch (e) {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `${typeName}｜3521地區年會.png`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+      method = 'download';
+    }
+
+    const msg = method === 'clipboard'
+      ? '圖片已複製！開啟 IG 限動後長按貼上'
+      : '圖片已下載！開啟 IG 限動後從相機膠捲選取';
+    showIGToast(msg);
+    logShare();
+
+    setTimeout(() => { window.location.href = 'instagram://story-camera'; }, 1200);
+
+  } catch (e) {
+    alert('請先存圖片，再手動開啟 Instagram 限時動態！');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '分享到IG限動 📸';
+}
+
+function showIGToast(msg) {
+  let toast = document.getElementById('ig-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'ig-toast';
+    toast.className = 'ig-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3200);
 }
 
 async function saveAsImage() {
