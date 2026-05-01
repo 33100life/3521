@@ -507,25 +507,20 @@
     .save-btn:active { transform: translateY(0); }
     .save-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
 
-    .ig-btn {
+    .ig-hint {
       display: block;
       width: 100%;
-      padding: 16px;
+      padding: 14px 16px;
       background: linear-gradient(135deg, #833AB4, #C13584, #FD1D1D);
       color: #fff;
-      border: none;
       border-radius: 14px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(131,58,180,0.35);
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-align: center;
       margin-top: 12px;
-      letter-spacing: 1px;
-      transition: transform 0.15s, opacity 0.15s;
+      line-height: 1.5;
+      letter-spacing: 0.5px;
     }
-    .ig-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(131,58,180,0.45); }
-    .ig-btn:active { transform: translateY(0); }
-    .ig-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
 
     .ig-toast {
       position: fixed;
@@ -1234,7 +1229,7 @@ function showResult() {
 
     <button class="save-btn" id="save-btn" onclick="saveAsImage()">分享 / 存到相簿 🎵</button>
 
-    <button class="ig-btn" id="ig-btn" onclick="shareToIG()">分享到IG限動 📸</button>
+    <p class="ig-hint">⬆️ 存進相簿後，分享到 IG 限動<br>讓更多朋友一起來玩吧！</p>
 
     <button class="retry-btn" onclick="startQuiz()">再測一次 ♪</button>
 
