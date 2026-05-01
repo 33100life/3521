@@ -1269,33 +1269,23 @@ function showResult() {
 }
 
 function shareToIG() {
-  const btn = document.getElementById('ig-btn');
-  btn.disabled = true;
-  btn.textContent = '準備中…';
+  const type = _currentResultType;
+  logShare();
 
-  try {
-    const type = _currentResultType;
-    const typeName = type && QUIZ_DATA.types[type]
-      ? QUIZ_DATA.types[type].name.replace(/[🎼🎹🎻🪈🎷📯🎵🎶🥁🎸]/gu, '').trim()
-      : '我的樂手類型';
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;padding:20px;gap:14px;';
+  overlay.innerHTML = `
+    <p style="color:#fff;font-size:17px;font-weight:bold;margin:0;">⬇️ 長按圖片儲存到相簿</p>
+    <img src="ig-card-${type}.png" style="max-width:100%;max-height:58vh;border-radius:12px;display:block;">
+    <button id="ig-open-btn" style="padding:13px 0;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;border:none;border-radius:24px;font-size:16px;cursor:pointer;width:100%;max-width:300px;font-weight:bold;">開啟 IG 限動 →</button>
+    <p style="color:#aaa;font-size:13px;margin:0;">儲存圖片後，點上方按鈕開啟 Instagram</p>
+  `;
+  document.body.appendChild(overlay);
 
-    const link = document.createElement('a');
-    link.href = `ig-card-${type}.png`;
-    link.download = `${typeName}｜3521地區年會.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    logShare();
-    showIGToast('圖片下載中，正在開啟 IG 限動…');
+  document.getElementById('ig-open-btn').onclick = () => {
+    overlay.remove();
     window.location.href = 'instagram://story-camera';
-
-  } catch (e) {
-    alert('請先存圖片，再手動開啟 Instagram 限時動態！');
-  }
-
-  btn.disabled = false;
-  btn.textContent = '分享到IG限動 📸';
+  };
 }
 
 function showIGToast(msg) {
