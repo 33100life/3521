@@ -1268,7 +1268,7 @@ function showResult() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-async function shareToIG() {
+function shareToIG() {
   const btn = document.getElementById('ig-btn');
   btn.disabled = true;
   btn.textContent = '準備中…';
@@ -1279,20 +1279,16 @@ async function shareToIG() {
       ? QUIZ_DATA.types[type].name.replace(/[🎼🎹🎻🪈🎷📯🎵🎶🥁🎸]/gu, '').trim()
       : '我的樂手類型';
 
-    const res = await fetch(`ig-card-${type}.png`);
-    const blob = await res.blob();
-
-    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
+    link.href = `ig-card-${type}.png`;
     link.download = `${typeName}｜3521地區年會.png`;
-    link.href = url;
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(link);
 
-    showIGToast('圖片已下載！開啟 IG 限動後從相機膠捲選取');
     logShare();
-
-    setTimeout(() => { window.location.href = 'instagram://story-camera'; }, 1200);
+    showIGToast('圖片下載中，正在開啟 IG 限動…');
+    window.location.href = 'instagram://story-camera';
 
   } catch (e) {
     alert('請先存圖片，再手動開啟 Instagram 限時動態！');
